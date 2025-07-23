@@ -76,7 +76,27 @@ const getAllCode = async (req, res, next) => {
   }
 }
 
+let handleLoginWithGoogle = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(200).json({ errCode: 1, errMessage: 'Missing token' });
+    } else {
+      const result = await userService.handleGooogleLogin(token);
+      return res.status(200).json(result);
+    }
+
+  } catch (error) {
+    console.log("login error", error)
+    return res.status(200).json({
+      errCode: -1,
+      errMessage: 'Error from server!'
+    })
+  }
+}
+
 export default {
+  handleLoginWithGoogle,
   hanleLogin,
   getAllUser,
   createUser,

@@ -50,6 +50,7 @@ let initWebRoutes = (app) => {
   router.get('/api/get-all-clinic', clinicController.getAllClinic)
   router.get('/api/get-detail-clinic', clinicController.getDetailClinic)
 
+  router.post("/api/auth/google", userController.handleLoginWithGoogle)
 
   return app.use("/", router);
 };

@@ -2,7 +2,8 @@ import db from "../models/index"
 import bcrypt from "bcryptjs";
 
 const salt = bcrypt.genSaltSync(10);
-
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const handleUserLogin = async (email, pass) => {
   return new Promise(async (resolve, reject) => {
@@ -202,7 +203,56 @@ const getAllCodeService = async (type) => {
   }
 };
 
+const handleGooogleLogin = (googleToken) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: googleToken,
+        audience: process.env.GOOGLE_CLIENT_ID
+      })
+
+      const payloadUser = ticket.getPayload()
+      const { email, name, picture } = payloadUser
+
+      const [firstName, ...lastNameParts] = name.split(" ");
+      const lastName = lastNameParts.join(" ");
+      let user = await db.User.findOne({ where: { email } });
+      if (!user) {
+        user = await db.User.create({
+          email,
+          firstName,
+          lastName,
+          password: '',
+          roleId: 'R2',
+        });
+        resolve({
+          EC: 0,
+          EM: 'Login with Google successful.',
+          user: {
+            id: user.id,
+            email: user.email,
+            roleId: user.roleId,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            image: user.image,
+          },
+        })
+      } else {
+        resolve({
+          EC: 0,
+          EM: 'Login with Google successful.',
+          user: user,
+        })
+      }
+
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
 module.exports = {
+  handleGooogleLogin,
   handleUserLogin,
   getAllUser,
   createNewUser,

@@ -216,6 +216,7 @@ const handleGooogleLogin = (googleToken) => {
 
       const [firstName, ...lastNameParts] = name.split(" ");
       const lastName = lastNameParts.join(" ");
+      
       let user = await db.User.findOne({ where: { email } });
       if (!user) {
         user = await db.User.create({
@@ -223,7 +224,7 @@ const handleGooogleLogin = (googleToken) => {
           firstName,
           lastName,
           password: '',
-          roleId: 'R2',
+          roleId: 'R3',
         });
         resolve({
           EC: 0,
